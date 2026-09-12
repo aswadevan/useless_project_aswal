@@ -19,31 +19,46 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 def run():
     os.chdir(DIRECTORY)
     
-    # Try port 8000, fallback to other ports if busy
     global PORT
     server = None
-    for attempt_port in range(PORT, PORT + 10):
+    
+    # Support cloud deployment hosts (Render, Railway, Heroku provide $PORT)
+    env_port = os.environ.get("PORT")
+    if env_port:
         try:
-            server = socketserver.TCPServer(("", attempt_port), Handler)
-            PORT = attempt_port
-            break
-        except OSError:
-            continue
+            PORT = int(env_port)
+            server = socketserver.TCPServer(("", PORT), Handler)
+        except Exception as e:
+            print(f"[-] Failed to bind to cloud PORT {PORT}: {e}")
+            sys.exit(1)
+    else:
+        # Local development: Try port 8000, fallback to other ports if busy
+        for attempt_port in range(PORT, PORT + 10):
+            try:
+                server = socketserver.TCPServer(("", attempt_port), Handler)
+                PORT = attempt_port
+                break
+            except OSError:
+                continue
             
     if not server:
-        print("[-] Could not bind to port 8000-8010. Please close conflicting programs.")
+        print("[-] Could not bind to port. Please close conflicting programs.")
         sys.exit(1)
 
     url = f"http://localhost:{PORT}"
     print("=" * 65)
     print("⚡ ARIYATHE THALAYATTIYATH — AI UNDERSTANDING DETECTION SYSTEM")
     print(f"📡 Server running at: {url}")
-    print("🚀 Opening your browser automatically...")
     print("💡 Press Ctrl+C in this terminal window to stop the server.")
     print("=" * 65)
 
-    # Open default browser
-    webbrowser.open(url)
+    # Open default browser only in local mode (not headless servers)
+    if not env_port:
+        try:
+            print("🚀 Opening your browser automatically...")
+            webbrowser.open(url)
+        except Exception:
+            pass
 
     try:
         server.serve_forever()
