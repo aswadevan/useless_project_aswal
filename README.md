@@ -78,7 +78,6 @@ Machine Learning:
 ### Implementation
 For Software:
 # Installation
-```bash
 # 1. Clone the repository
 git clone https://github.com/aswadevan/useless_project_aswal.git
 # 2. Navigate to the project directory
