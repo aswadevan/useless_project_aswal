@@ -1,1 +1,942 @@
+<!DOCTYPE html>
+<html lang="ml">
 
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>അറിയില്ലെങ്കിലും തലയാട്ടും — ARIYATHE THALAYATTIYATH AI</title>
+  <meta name="description"
+    content="അറിയില്ലെങ്കിലും തലയാട്ടും. An experimental Kerala AI computer vision system that analyzes head movements to determine whether you genuinely understand, politely nod, or are just nodding to survive.">
+
+  <!-- Google Fonts: Malayalam (Anek Malayalam, Manjari, Gayathri) + Latin (Outfit, Plus Jakarta Sans, JetBrains Mono) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Anek+Malayalam:wght@400;500;600;700;800&family=Gayathri:wght@400;700&family=JetBrains+Mono:wght@400;500;700&family=Manjari:wght@400;700&family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- MediaPipe FaceMesh & Camera Utils -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+  <!-- Ambient Kerala Jungle / Kasavu Glow Orbs -->
+  <div class="glow-orb glow-orb-1"></div>
+  <div class="glow-orb glow-orb-2"></div>
+  <div class="glow-orb glow-orb-3"></div>
+
+  <!-- Kerala Kasavu Border Top Line -->
+  <div class="kasavu-header-stripe"></div>
+
+  <!-- Navigation Bar -->
+  <header class="navbar">
+    <div class="nav-brand">
+      <span class="brand-badge">🇮🇳 കേരള എഡിഷൻ</span>
+      <div class="brand-title">
+        <span class="brand-icon">🥥</span>
+        <div class="brand-title-stack">
+          <span class="brand-malayalam">അറിയാതെ <span class="brand-accent">തലയാട്ടിയത്</span></span>
+          <span class="brand-english">ARIYATHE THALAYATTIYATH AI</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-actions">
+      <button id="soundToggleBtn" class="btn-icon" title="Toggle Sound FX" aria-label="Toggle sound">
+        <svg id="soundIconOn" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+        </svg>
+        <svg id="soundIconOff" class="hidden" width="18" height="18" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+          <line x1="23" y1="9" x2="17" y2="15"></line>
+          <line x1="17" y1="9" x2="23" y2="15"></line>
+        </svg>
+        <span class="btn-text">ശബ്ദം: <span id="soundStatusText">ON</span></span>
+      </button>
+
+      <button id="certificateBtn" class="btn-secondary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+          <polyline points="10 9 9 9 8 9"></polyline>
+        </svg>
+        <span>തലയാട്ടൽ സർട്ടിഫിക്കറ്റ്</span>
+      </button>
+
+      <a href="#trainingSection" class="btn-outline">ML Pipeline</a>
+      <a href="#demoSection" class="btn-outline">ഡെമോ</a>
+    </div>
+  </header>
+
+  <main class="main-container">
+    <!-- Hero / Landing Section with Kerala Comedy Vibe -->
+    <section class="hero-section">
+      <!-- Kerala AI Badge -->
+      <div class="kerala-badge-pill">
+        <span class="badge-dot"></span>
+        <span>🇮🇳 KERALA'S MOST UNNECESSARY AI • അത്ഭുത ശാസ്ത്രം</span>
+      </div>
+
+      <!-- Main Bilingual Titles -->
+      <h1 class="hero-title">
+        <span class="hero-mal-primary">അറിയില്ലെങ്കിലും തലയാട്ടും</span>
+        <span class="hero-en-secondary gradient-text">ARIYATHE THALAYATTIYATH</span>
+      </h1>
+
+      <p class="hero-subtitle">
+        AI-Powered Understanding Detection System
+      </p>
+
+      <!-- Tasteful Kerala Nodding Illustration -->
+      <div class="kerala-nodder-avatar">
+        <svg class="avatar-svg" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Kerala House Roof Silhouette / Banana leaf hint -->
+          <path d="M10 110 C 35 70, 85 70, 110 110" stroke="rgba(245, 158, 11, 0.3)" stroke-width="2" fill="none" />
+          <!-- Neck & Shoulders in Kerala Kurta -->
+          <path d="M40 105 Q 60 90, 80 105 L 85 118 L 35 118 Z" fill="#0f2b1f" stroke="#10b981" stroke-width="2"/>
+          <path d="M50 82 L 50 98 Q 60 102, 70 98 L 70 82 Z" fill="#fce7c8" stroke="#10b981" stroke-width="1.5"/>
+          <!-- Nodding Head Group (Animated) -->
+          <g class="nodding-head-anim">
+            <ellipse cx="60" cy="58" rx="26" ry="30" fill="#fde8cd" stroke="#eab308" stroke-width="2"/>
+            <!-- Kerala Traditional Mustache (മീശ) -->
+            <path d="M48 68 C 54 64, 58 66, 60 70 C 62 66, 66 64, 72 68 C 76 72, 74 74, 70 72 C 64 69, 62 72, 60 73 C 58 72, 56 69, 50 72 C 46 74, 44 72, 48 68 Z" fill="#1e2920"/>
+            <!-- Expressive Kerala Eyes looking slightly nervous -->
+            <ellipse cx="50" cy="52" rx="4.5" ry="3" fill="#07120c"/>
+            <ellipse cx="70" cy="52" rx="4.5" ry="3" fill="#07120c"/>
+            <circle cx="51" cy="51" r="1.2" fill="#ffffff"/>
+            <circle cx="71" cy="51" r="1.2" fill="#ffffff"/>
+            <!-- Raised perplexed eyebrows -->
+            <path d="M44 45 Q 50 40, 56 46" stroke="#07120c" stroke-width="2" stroke-linecap="round"/>
+            <path d="M64 46 Q 70 40, 76 45" stroke="#07120c" stroke-width="2" stroke-linecap="round"/>
+            <!-- Kerala Chandanam / Sandalwood mark on forehead -->
+            <path d="M54 36 H 66" stroke="#fef08a" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="60" cy="40" r="1.8" fill="#e11d48"/>
+          </g>
+          <!-- Nodding Motion Arc Arrows -->
+          <path d="M92 42 C 98 52, 98 68, 92 78" stroke="rgba(234, 179, 8, 0.7)" stroke-width="2" stroke-linecap="round" stroke-dasharray="3 3"/>
+          <polygon points="90,78 96,75 94,83" fill="#eab308"/>
+        </svg>
+      </div>
+
+      <!-- Funny Kerala Tagline Box -->
+      <div class="tagline-box">
+        <span class="quote-mark">“</span>
+        <div class="tagline-inner">
+          <div class="mal-punchline">അറിയില്ലെങ്കിലും തലയാട്ടും.</div>
+          <div class="en-tagline-sub">Because sometimes <span class="mal-highlight">“athe athe”</span> doesn’t mean <span class="en-highlight">“I understand.”</span></div>
+        </div>
+        <span class="quote-mark">”</span>
+      </div>
+
+      <p class="hero-description">
+        ആരെങ്കിലും എന്തെങ്കിലും വിശദീകരിക്കുമ്പോൾ മനസ്സിലായില്ലെങ്കിലും തല കുലുക്കുന്ന മനുഷ്യരുടെ സ്വാഭാവിക പ്രവണതയെ
+        <strong>MediaPipe Computer Vision</strong> & <strong>Supervised ML</strong> ഉപയോഗിച്ച് തത്സമയം പിടികൂടുന്ന ശാസ്ത്രീയ പരീക്ഷണം!
+      </p>
+
+      <!-- Primary Action Buttons -->
+      <div class="hero-buttons">
+        <button id="startWebcamBtn" class="btn-primary">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+            <circle cx="12" cy="13" r="4"></circle>
+          </svg>
+          <div class="btn-label-group">
+            <span class="btn-mal">തലയാട്ടി നോക്കാം</span>
+            <span class="btn-en">START ANALYSIS</span>
+          </div>
+        </button>
+
+        <button id="startDemoBtn" class="btn-glow">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+          <div class="btn-label-group">
+            <span class="btn-mal">ഡെമോ കാണാം</span>
+            <span class="btn-en">DEMO MODE (NO CAM)</span>
+          </div>
+        </button>
+      </div>
+
+      <div class="hero-disclaimer-pill">
+        🔒 100% Client-Side Privacy: വീഡിയോ നിങ്ങളുടെ കമ്പ്യൂട്ടറിൽ മാത്രമേ പ്രോസസ്സ് ചെയ്യൂ. ഒരിടത്തും അപ്‌ലോഡ് ചെയ്യുന്നില്ല.
+      </div>
+    </section>
+
+    <!-- Visual Architecture Flowchart (How It Works) -->
+    <section class="pipeline-section">
+      <div class="pipeline-header">
+        <span class="badge-mini">AI PIPELINE ARCHITECTURE</span>
+        <h2 class="pipeline-title">From Webcam Pixels to Trained Nod Classifier</h2>
+        <p class="pipeline-subtitle">Pretrained Computer Vision (MediaPipe) + Custom Supervised Machine Learning</p>
+      </div>
+
+      <div class="pipeline-flow-container">
+        <div class="pipeline-step-card">
+          <div class="step-badge">INPUT</div>
+          <div class="step-icon">📹</div>
+          <div class="step-name">WEBCAM</div>
+          <div class="step-desc">ക്യാമറ ഫ്രെയിമുകൾ തത്സമയം എടുക്കുന്നു</div>
+        </div>
+
+        <div class="pipeline-arrow">➔</div>
+
+        <div class="pipeline-step-card">
+          <div class="step-badge">PRETRAINED CV</div>
+          <div class="step-icon">👁️</div>
+          <div class="step-name">FACE LANDMARKS</div>
+          <div class="step-desc">MediaPipe 468 3D ഫേഷ്യൽ പോയിന്റുകൾ</div>
+        </div>
+
+        <div class="pipeline-arrow">➔</div>
+
+        <div class="pipeline-step-card">
+          <div class="step-badge">KINEMATICS</div>
+          <div class="step-icon">📐</div>
+          <div class="step-name">9 MOVEMENT FEATURES</div>
+          <div class="step-desc">തലയുടെ ചലനവേഗത, ആംഗിൾ, ആക്സിലറേഷൻ</div>
+        </div>
+
+        <div class="pipeline-arrow">➔</div>
+
+        <div class="pipeline-step-card card-highlight">
+          <div class="step-badge badge-ml">OUR ML MODEL</div>
+          <div class="step-icon">🧠</div>
+          <div class="step-name">TRAINED CLASSIFIER</div>
+          <div class="step-desc">നമ്മുടെ സ്വന്തം ഡാറ്റാസെറ്റിൽ ട്രെയിൻ ചെയ്തത്</div>
+        </div>
+
+        <div class="pipeline-arrow">➔</div>
+
+        <div class="pipeline-step-card">
+          <div class="step-badge">CLASSIFICATION</div>
+          <div class="step-icon">🎯</div>
+          <div class="step-name">NOD BEHAVIOR</div>
+          <div class="step-desc">Genuine, Polite, Danger, or Survival</div>
+        </div>
+
+        <div class="pipeline-arrow">➔</div>
+
+        <div class="pipeline-step-card">
+          <div class="step-badge">VERDICT</div>
+          <div class="step-icon">📊</div>
+          <div class="step-name">UNDERSTANDING SCORE</div>
+          <div class="step-desc">“മനസ്സിലായോ?” സ്കോർ തത്സമയം കാണിക്കുന്നു</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Workspace / Analysis Grid -->
+    <section id="analysisSection" class="workspace-grid">
+      <!-- Left Column: Video Feed & Live Vision HUD -->
+      <div class="feed-column">
+        <div class="glass-card video-card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="feed-indicator" id="feedStatusDot"></span>
+              <div class="title-text-stack">
+                <span class="card-title-kerala">LIVE THALAYATTAL ANALYSIS</span>
+                <span class="card-title" id="feedTitleText">ക്യാമറ നോക്കി തലയാട്ടൂ // READY</span>
+              </div>
+            </div>
+            <div class="header-right-badges">
+              <span id="nodDetectedPill" class="nod-detected-pill hidden">തലയാട്ട് detected ✓</span>
+              <div class="feed-fps-badge" id="fpsBadge">
+                FPS: <span id="fpsValue">0</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Video & Canvas Overlay Viewport -->
+          <div class="viewport-container" id="viewportContainer">
+            <video id="webcamVideo" playsinline muted autoplay></video>
+            <canvas id="overlayCanvas"></canvas>
+
+            <!-- Pitch indicator bar on right edge -->
+            <div class="pitch-meter-container">
+              <div class="pitch-meter-label">HEAD PITCH (തലച്ചായ്വ്)</div>
+              <div class="pitch-meter-track">
+                <div class="pitch-meter-center"></div>
+                <div class="pitch-meter-bar" id="pitchBar"></div>
+              </div>
+            </div>
+
+            <!-- Idle / Standby Overlay -->
+            <div id="standbyOverlay" class="standby-overlay">
+              <div class="standby-icon">🥥</div>
+              <h3 class="standby-title-mal">തലയാട്ടൽ പരിശോധനയ്ക്ക് തയ്യാറാണ്</h3>
+              <p>ക്യാമറ ഓൺ ചെയ്ത് ശരിക്കുമുള്ള തലയാട്ടൽ അളക്കാം, അല്ലെങ്കിൽ ഒരു ഡെമോ കണ്ട് രസിക്കാം.</p>
+              <div class="standby-buttons">
+                <button id="standbyWebcamBtn" class="btn-primary btn-sm">തലയാട്ടി നോക്കാം (Camera)</button>
+                <button id="standbyDemoBtn" class="btn-secondary btn-sm">ഡെമോ കാണാം (Demo)</button>
+              </div>
+            </div>
+
+            <!-- Warning / Permission Denied Overlay -->
+            <div id="cameraErrorOverlay" class="camera-error-overlay hidden">
+              <div class="error-icon">⚠️</div>
+              <h3 id="cameraErrorTitle">ക്യാമറ കിട്ടിയില്ല / Camera Unavailable</h3>
+              <p id="cameraErrorMessage">ക്യാമറ പെർമിഷൻ ലഭിച്ചില്ല. പേടിക്കേണ്ട, ഓഫ്‌ലൈൻ ഡെമോ മോഡ് 100% വർക്കിംഗ് ആണ്!</p>
+              <button id="errorFallbackDemoBtn" class="btn-glow btn-sm">ഡെമോ മോഡിലേക്ക് മാറുക</button>
+            </div>
+
+            <!-- HUD Scanlines & Traditional Frame Accents -->
+            <div class="hud-crosshair top-left"></div>
+            <div class="hud-crosshair top-right"></div>
+            <div class="hud-crosshair bottom-left"></div>
+            <div class="hud-crosshair bottom-right"></div>
+            <div class="hud-scanline"></div>
+          </div>
+
+          <!-- Viewport Controls Footer -->
+          <div class="viewport-footer">
+            <div class="mode-info">
+              <span class="mode-label">PIPELINE:</span>
+              <span class="mode-tag" id="currentPipelineTag">STANDBY</span>
+            </div>
+            <div class="viewport-actions">
+              <button id="toggleMeshBtn" class="btn-chip" title="Toggle 3D mesh lines">
+                <span>Wireframe: <strong id="meshToggleText">ON</strong></span>
+              </button>
+              <button id="stopSessionBtn" class="btn-chip btn-chip-danger hidden">
+                <span>Stop Session</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Real-Time Pitch Waveform Oscilloscope -->
+        <div class="glass-card waveform-card">
+          <div class="card-header">
+            <div class="card-title-group">
+              <span class="card-icon">📈</span>
+              <div class="title-text-stack">
+                <span class="card-title-kerala">തലയാട്ടൽ വേഗത മോണിറ്റർ</span>
+                <span class="card-title">REAL-TIME VERTICAL HEAD MOVEMENT (OSCILLOSCOPE)</span>
+              </div>
+            </div>
+            <span class="badge-mini">NOD INFLUX</span>
+          </div>
+          <div class="canvas-chart-wrapper">
+            <canvas id="waveformCanvas"></canvas>
+          </div>
+          <div class="chart-legend">
+            <span class="legend-item"><span class="legend-dot dot-cyan"></span> Pitch Trajectory (തലയുടെ ചലനം)</span>
+            <span class="legend-item"><span class="legend-dot dot-emerald"></span> Nod Trigger Zone (തലയാട്ടൽ പരിധി)</span>
+            <span class="legend-item"><span class="legend-dot dot-rose"></span> Danger Zone (ആപൽക്കരം)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Live Analysis Dashboard -->
+      <div class="dashboard-column">
+        <!-- Classifier Engine Selector & ML Status Strip -->
+        <div class="glass-card classifier-mode-card">
+          <div class="mode-selector-header">
+            <span class="mode-selector-label">CLASSIFIER മോഡ്:</span>
+            <div class="mode-toggle-group">
+              <button id="btnModeHeuristic" class="btn-mode active" title="Rule-based velocity heuristics">Rule-Based</button>
+              <button id="btnModeML" class="btn-mode" title="Custom trained multiclass ML model">Trained ML Model</button>
+            </div>
+          </div>
+          <div id="mlInferenceBadge" class="ml-inference-badge hidden">
+            <div class="ml-badge-left">
+              <span class="ml-tag">ML പ്രവചനം:</span>
+              <strong id="mlPredictedClass" class="ml-class-text">GENUINE</strong>
+              <span class="ml-conf-text">(Confidence: <strong id="mlConfidenceVal">88.5%</strong>)</span>
+            </div>
+            <span class="ml-model-chip" id="mlActiveModelChip">Softmax LogReg (Active)</span>
+          </div>
+        </div>
+
+        <!-- Status Banner with Kerala Humor -->
+        <div class="glass-card status-card" id="statusCard">
+          <div class="status-top-row">
+            <span class="status-indicator-badge" id="statusBadge">ഇപ്പോഴത്തെ അവസ്ഥ</span>
+            <span class="status-urgency" id="statusUrgency">WAITING FOR SUBJECT</span>
+          </div>
+          <div class="status-main">
+            <h2 class="status-title" id="statusTitle">തലയാട്ടാൻ തുടങ്ങിക്കോളൂ</h2>
+            <p class="status-subtitle" id="statusSubtitle">“The system is observing your cranial inclinations…”</p>
+          </div>
+        </div>
+
+        <!-- Core Understanding Score Gauge -->
+        <div class="glass-card gauge-card">
+          <div class="gauge-content">
+            <div class="gauge-container">
+              <svg class="gauge-svg" viewBox="0 0 200 200">
+                <circle class="gauge-bg" cx="100" cy="100" r="85"></circle>
+                <circle class="gauge-fill" id="gaugeCircle" cx="100" cy="100" r="85"></circle>
+              </svg>
+              <div class="gauge-center-text">
+                <div class="gauge-val" id="understandingScoreVal">--<span class="percent-sign">%</span></div>
+                <div class="gauge-label-mal">മനസ്സിലായോ?</div>
+                <div class="gauge-label-en">UNDERSTANDING SCORE</div>
+              </div>
+            </div>
+
+            <div class="gauge-explanation">
+              <div class="explanation-heading">AI വിധി // NEURAL VERDICT</div>
+              <p class="explanation-text" id="explanationText">
+                ക്യാമറ നോക്കി സ്വാഭാവികമായി തലയാട്ടുക. അല്ലെങ്കിൽ ഡെമോ മോഡ് പ്രവർത്തിപ്പിച്ച് നോക്കുക.
+              </p>
+              <div class="metric-mini-bar-group">
+                <div class="mini-bar-label">
+                  <span>തലച്ചോറിൽ കയറിയതിന്റെ അളവ് (Retention)</span>
+                  <span id="retentionVal">0%</span>
+                </div>
+                <div class="mini-bar-track">
+                  <div class="mini-bar-fill" id="retentionBar" style="width: 0%;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4-Card Telemetry Grid (Bilingual Kerala Labels) -->
+        <div class="metrics-grid">
+          <!-- Nodding Confidence -->
+          <div class="glass-card metric-card">
+            <div class="metric-top">
+              <div class="metric-title-group">
+                <span class="metric-label-mal">തലയാട്ട് CONFIDENCE</span>
+                <span class="metric-label-en">GESTURE CONVICTION</span>
+              </div>
+              <span class="metric-icon">🎯</span>
+            </div>
+            <div class="metric-number-row">
+              <span class="metric-number" id="nodConfidenceVal">0</span>
+              <span class="metric-unit">%</span>
+            </div>
+            <div class="metric-progress-track">
+              <div class="metric-progress-bar bar-cyan" id="nodConfidenceBar" style="width: 0%;"></div>
+            </div>
+            <div class="metric-subtext">തലയാട്ടലിലെ ധൈര്യത്തിന്റെ അളവ്</div>
+          </div>
+
+          <!-- Genuine Nod Probability -->
+          <div class="glass-card metric-card">
+            <div class="metric-top">
+              <div class="metric-title-group">
+                <span class="metric-label-mal">ശരിക്കും മനസ്സിലായോ?</span>
+                <span class="metric-label-en">GENUINE PROBABILITY</span>
+              </div>
+              <span class="metric-icon">🧠</span>
+            </div>
+            <div class="metric-number-row">
+              <span class="metric-number" id="genuineProbVal">0</span>
+              <span class="metric-unit">%</span>
+            </div>
+            <div class="metric-progress-track">
+              <div class="metric-progress-bar bar-emerald" id="genuineProbBar" style="width: 0%;"></div>
+            </div>
+            <div class="metric-subtext">തലച്ചോറിൽ വെളിച്ചം വീണ സാധ്യത</div>
+          </div>
+
+          <!-- Fake Understanding Probability -->
+          <div class="glass-card metric-card">
+            <div class="metric-top">
+              <div class="metric-title-group">
+                <span class="metric-label-mal">വെറുതെ തലയാട്ടൽ</span>
+                <span class="metric-label-en">FAKE UNDERSTANDING</span>
+              </div>
+              <span class="metric-icon">🎭</span>
+            </div>
+            <div class="metric-number-row">
+              <span class="metric-number" id="fakeProbVal">0</span>
+              <span class="metric-unit">%</span>
+            </div>
+            <div class="metric-progress-track">
+              <div class="metric-progress-bar bar-rose" id="fakeProbBar" style="width: 0%;"></div>
+            </div>
+            <div class="metric-subtext">ഒന്നും അറിയാതെ സമ്മതിക്കുന്ന അളവ്</div>
+          </div>
+
+          <!-- Total Nods Detected -->
+          <div class="glass-card metric-card">
+            <div class="metric-top">
+              <div class="metric-title-group">
+                <span class="metric-label-mal">തലയാട്ടിയത്</span>
+                <span class="metric-label-en">TOTAL NODS DETECTED</span>
+              </div>
+              <span class="metric-icon">🔄</span>
+            </div>
+            <div class="metric-number-row">
+              <span class="metric-number counter-pop" id="nodsDetectedVal">0</span>
+              <span class="metric-unit">വട്ടം</span>
+            </div>
+            <div class="metric-freq-row">
+              <span>വേഗത: </span>
+              <strong id="nodFreqVal">0.0</strong> <span>വട്ടം/മിനിറ്റ്</span>
+            </div>
+            <div class="metric-subtext" id="nodCadenceSubtext">Dormant state</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- NEW KERALA COMEDY SECTION: “കേരളത്തിൽ ഇത് എന്തിനാണ്?” -->
+    <section class="kerala-comedy-section">
+      <div class="glass-card kerala-comedy-card">
+        <div class="comedy-header">
+          <span class="badge-accent badge-gold">സാംസ്കാരിക പ്രതിഭാസം // CULTURAL REALITY</span>
+          <h3 class="comedy-title">കേരളത്തിൽ ഇത് എന്തിനാണ്?</h3>
+          <p class="comedy-subtitle">Why does Kerala desperately need this AI system?</p>
+        </div>
+
+        <div class="comedy-chat-flow">
+          <div class="chat-intro-banner">
+            ആരെങ്കിലും എന്തെങ്കിലും വിശദീകരിക്കാൻ തുടങ്ങിയാൽ…
+          </div>
+
+          <div class="chat-row chat-speaker">
+            <div class="chat-avatar">👨‍🏫</div>
+            <div class="chat-bubble bubble-speaker">
+              <span class="bubble-speaker-name">മാഷ് / പ്രൊഫസർ / ബോസ് / കാരണവർ:</span>
+              <p class="bubble-text">“മനസ്സിലായോ?”</p>
+            </div>
+          </div>
+
+          <div class="chat-row chat-listener">
+            <div class="chat-bubble bubble-listener">
+              <span class="bubble-speaker-name">നിങ്ങൾ (You):</span>
+              <p class="bubble-text">“അതെ… അതെ… അതെ…” <span class="bubble-sub">*(ഭയങ്കര ഗൗരവത്തിൽ തലയാട്ടുന്നു)*</span></p>
+            </div>
+            <div class="chat-avatar">🙋‍♂️</div>
+          </div>
+
+          <div class="chat-row chat-truth">
+            <div class="chat-avatar">💡</div>
+            <div class="chat-bubble bubble-truth">
+              <span class="bubble-speaker-name">Actual Truth (സത്യത്തിൽ):</span>
+              <p class="bubble-text">Actually understood? <strong class="text-danger">“ഒരു തേങ്ങയും മനസ്സിലായില്ല.” (NOPE ❌)</strong></p>
+            </div>
+          </div>
+
+          <div class="comedy-punchline-card">
+            <div class="punchline-emoji">🎯</div>
+            <div class="punchline-content">
+              <h4>That’s exactly what this AI detects.</h4>
+              <p>മനസ്സിലാവാതെ വെറുതെ തലയാട്ടി രക്ഷപ്പെടുന്നവരെ കൃത്യമായി കൈയ്യോടെ പിടികൂടാൻ ഒരു കേരളീയ AI!</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Demo Control Suite (Hackathon Ready) -->
+    <section id="demoSection" class="demo-suite-section">
+      <div class="glass-card demo-suite-card">
+        <div class="demo-suite-header">
+          <div>
+            <span class="badge-accent">HACKATHON PRESENTATION CONTROLS</span>
+            <h3 class="demo-suite-title">ഓഫ്‌ലൈൻ ഡെമോ & ടെസ്റ്റിംഗ് സെന്റർ</h3>
+            <p class="demo-suite-desc">
+              ക്യാമറ ഇല്ലാതെ തന്നെ ജഡ്ജസിന് മുന്നിൽ എല്ലാ ലെവലുകളും തെളിയിക്കാം. താഴെയുള്ള ബട്ടണുകൾ ക്ലിക്ക് ചെയ്താൽ കൃത്രിമ തലയാട്ടൽ റൺ ചെയ്യും.
+            </p>
+          </div>
+
+          <div class="demo-primary-controls">
+            <button id="toggleDemoRunBtn" class="btn-glow">
+              <span id="demoRunBtnText">▶ START DEMO SIMULATION</span>
+            </button>
+            <button id="resetAllBtn" class="btn-outline">
+              <span>↺ RESET ALL</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Presets Selection Bar with Kerala Humorous Names -->
+        <div class="preset-buttons-grid">
+          <button class="preset-card active" data-scenario="genuine">
+            <div class="preset-badge badge-green">ലെവൽ 1</div>
+            <div class="preset-name">🟢 ആൾക്ക് മനസ്സിലായി</div>
+            <div class="preset-desc">പതുക്കെയുള്ള ശാന്തമായ തലയാട്ടൽ (1-2 per 10s). ശരിക്കുമുള്ള ഗ്രാഹ്യം.</div>
+          </button>
+
+          <button class="preset-card" data-scenario="polite">
+            <div class="preset-badge badge-yellow">ലെവൽ 2</div>
+            <div class="preset-name">🟡 മര്യാദയ്ക്ക് തലയാട്ടൽ</div>
+            <div class="preset-desc">മനസ്സിലായില്ലെങ്കിലും കേൾക്കുന്നുണ്ടെന്ന് വരുത്തിതീർക്കാൻ (3-4 per 10s).</div>
+          </button>
+
+          <button class="preset-card" data-scenario="danger">
+            <div class="preset-badge badge-red">ലെവൽ 3</div>
+            <div class="preset-name">🔴 ഒന്നും മനസ്സിലായിട്ടില്ല!</div>
+            <div class="preset-desc">പേടി കാരണം വേഗത്തിൽ തലയാട്ടുന്നു (5-7 per 10s). Brain 404!</div>
+          </button>
+
+          <button class="preset-card" data-scenario="survival">
+            <div class="preset-badge badge-purple">ലെവൽ 4</div>
+            <div class="preset-name">💀 സർവൈവൽ തലയാട്ടൽ</div>
+            <div class="preset-desc">ഇനി മനസ്സിലാക്കൽ ഒന്നുമില്ല. ജീവൻ രക്ഷിക്കാനുള്ള ഓട്ടോമാറ്റിക് ചലനം (8+).</div>
+          </button>
+
+          <button class="preset-card" data-scenario="tour">
+            <div class="preset-badge badge-cyan">AUTOPILOT</div>
+            <div class="preset-name">🚀 ഫുൾ ഡെമോ ടൂർ (30s)</div>
+            <div class="preset-desc">നാല് സ്റ്റേജുകളും ക്രമത്തിൽ 30 സെക്കൻഡിൽ കാണിച്ച് തരും!</div>
+          </button>
+        </div>
+
+        <!-- Manual Nod Trigger Tools for Presenter -->
+        <div class="manual-triggers-row">
+          <span class="trigger-label">Presenter Instant Injections:</span>
+          <button id="triggerSingleNodBtn" class="btn-chip">
+            <span>+ 1 തലയാട്ട് കൂട്ടുക</span>
+          </button>
+          <button id="triggerRapidBurstBtn" class="btn-chip btn-chip-warning">
+            <span>+ പെട്ടെന്നുള്ള തലയാട്ട് (x4)</span>
+          </button>
+          <button id="triggerSurvivalPanicBtn" class="btn-chip btn-chip-danger">
+            <span>+ ജീവൻ രക്ഷാ മോഡ് (Survival)</span>
+          </button>
+          <button id="triggerRandomQuoteBtn" class="btn-chip">
+            <span>🎲 AI കമന്റ് കേൾക്കാം</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Machine Learning Dataset Collection & Training Suite -->
+    <section id="trainingSection" class="training-suite-section">
+      <div class="glass-card training-suite-card">
+        <div class="training-suite-header">
+          <div>
+            <span class="badge-accent badge-ml">MACHINE LEARNING PIPELINE</span>
+            <h3 class="training-suite-title">ട്രെയിനിംഗ് ഡാറ്റാ കളക്ഷൻ & മോഡൽ ട്രെയിനർ</h3>
+            <p class="training-suite-desc">
+              നിങ്ങളുടെ ക്യാമറയിൽ നിന്നും തലയാട്ടൽ സാമ്പിളുകൾ റെക്കോർഡ് ചെയ്യുക, 9 ചലന ഫീച്ചറുകൾ എക്സ്ട്രാക്ട് ചെയ്യുക, തുടർന്ന് ബ്രൗസറിലോ പൈത്തണിലോ സ്വന്തം AI മോഡൽ ട്രെയിൻ ചെയ്തെടുക്കുക!
+            </p>
+          </div>
+
+          <div class="training-stats-pill">
+            <span class="pill-label">സാമ്പിളുകൾ:</span>
+            <span class="pill-val" id="totalSamplesCount">0 samples</span>
+          </div>
+        </div>
+
+        <!-- 4 Label Recording Buttons with Live Countdown -->
+        <div class="recording-controls-panel">
+          <div class="recording-header-row">
+            <span class="recording-instruction">
+              താഴെയുള്ളതിൽ ഏതെങ്കിലും ക്ലാസ് സെലക്ട് ചെയ്ത് <strong>6 സെക്കൻഡ്</strong> തലയാട്ടി റെക്കോർഡ് ചെയ്യുക:
+            </span>
+            <span id="recordingStatusLabel" class="recording-status-label">റെക്കോർഡിംഗിന് തയ്യാറാണ്</span>
+          </div>
+
+          <!-- Active Recording Progress Bar -->
+          <div id="recordingProgressContainer" class="recording-progress-container hidden">
+            <div class="recording-progress-info">
+              <span class="recording-pulse">● റെക്കോർഡ് ചെയ്യുന്നു: <strong id="recordingTargetLabel">GENUINE</strong></span>
+              <span id="recordingCountdown">6.0s remaining</span>
+            </div>
+            <div class="recording-progress-track">
+              <div id="recordingProgressBar" class="recording-progress-bar"></div>
+            </div>
+          </div>
+
+          <!-- 4 Recording Action Cards -->
+          <div class="record-buttons-grid">
+            <div class="record-card record-card-genuine">
+              <div class="record-card-top">
+                <span class="label-badge badge-green">CLASS 0</span>
+                <span class="sample-count-badge" id="countGenuine">0 samples</span>
+              </div>
+              <h4>🟢 Genuine Nod</h4>
+              <p>മനസ്സിലായതുപോലെ സാവധാനം സ്വാഭാവികമായി തലയാട്ടുക.</p>
+              <button id="recordGenuineBtn" class="btn-primary btn-record">
+                <span>റെക്കോർഡ് ചെയ്യുക (6s)</span>
+              </button>
+            </div>
+
+            <div class="record-card record-card-polite">
+              <div class="record-card-top">
+                <span class="label-badge badge-yellow">CLASS 1</span>
+                <span class="sample-count-badge" id="countPolite">0 samples</span>
+              </div>
+              <h4>🟡 Polite Nod</h4>
+              <p>മര്യാദയ്ക്ക് കേൾക്കുന്നുണ്ടെന്ന് വരുത്തിതീർക്കുന്ന വേഗതയിൽ.</p>
+              <button id="recordPoliteBtn" class="btn-secondary btn-record">
+                <span>റെക്കോർഡ് ചെയ്യുക (6s)</span>
+              </button>
+            </div>
+
+            <div class="record-card record-card-danger">
+              <div class="record-card-top">
+                <span class="label-badge badge-red">CLASS 2</span>
+                <span class="sample-count-badge" id="countDanger">0 samples</span>
+              </div>
+              <h4>🔴 Danger Nod</h4>
+              <p>ഒന്നും മനസ്സിലാവാതെ ധൃതിപിടിച്ച് സമ്മതിക്കുന്ന രീതിയിൽ.</p>
+              <button id="recordDangerBtn" class="btn-chip-warning btn-record">
+                <span>റെക്കോർഡ് ചെയ്യുക (6s)</span>
+              </button>
+            </div>
+
+            <div class="record-card record-card-survival">
+              <div class="record-card-top">
+                <span class="label-badge badge-purple">CLASS 3</span>
+                <span class="sample-count-badge" id="countSurvival">0 samples</span>
+              </div>
+              <h4>💀 Survival Nod</h4>
+              <p>തീരെ നിവൃത്തിയില്ലാതെ നിർത്താതെ കിടന്ന് തലയാട്ടുക.</p>
+              <button id="recordSurvivalBtn" class="btn-chip-danger btn-record">
+                <span>റെക്കോർഡ് ചെയ്യുക (6s)</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 9-Feature Extracted Telemetry Preview -->
+        <div class="feature-strip-panel">
+          <div class="feature-strip-header">
+            <span class="feature-strip-title">ഓരോ സാമ്പിളിലും അടങ്ങിയിട്ടുള്ള 9 ഫീച്ചറുകൾ:</span>
+          </div>
+          <div class="feature-tags-cloud">
+            <span class="feature-tag">1. head_pitch (ലംബ ചായ്വ്)</span>
+            <span class="feature-tag">2. head_yaw (തിരിവ്)</span>
+            <span class="feature-tag">3. movement_velocity (വേഗത)</span>
+            <span class="feature-tag">4. movement_acceleration (ആക്സിലറേഷൻ)</span>
+            <span class="feature-tag">5. nod_count (എണ്ണം)</span>
+            <span class="feature-tag">6. nod_frequency (ഫ്രീക്വൻസി)</span>
+            <span class="feature-tag">7. nod_duration (സമയം)</span>
+            <span class="feature-tag">8. inter_nod_interval (ഇടവേള)</span>
+            <span class="feature-tag">9. total_movement (മൊത്തം ദൂരം)</span>
+          </div>
+        </div>
+
+        <!-- Dataset Action Bar -->
+        <div class="dataset-action-bar">
+          <div class="dataset-left-actions">
+            <button id="loadSeedDataBtn" class="btn-primary" title="Instantly populate 40 realistic balanced samples">
+              <span>📥 റെഡിമെയ്ഡ് ഡാറ്റാസെറ്റ് ലോഡ് ചെയ്യുക (40 Samples)</span>
+            </button>
+            <button id="exportCsvBtn" class="btn-secondary">
+              <span>📤 Export Dataset (CSV)</span>
+            </button>
+            <label class="btn-secondary btn-file-label">
+              <span>📂 Import Dataset (CSV)</span>
+              <input type="file" id="importCsvInput" accept=".csv" class="hidden">
+            </label>
+            <button id="clearDatasetBtn" class="btn-outline btn-sm">
+              <span>↺ Clear Dataset</span>
+            </button>
+          </div>
+
+          <div class="dataset-right-actions">
+            <button id="trainBrowserModelBtn" class="btn-glow">
+              <span>🧠 Train Model (In-Browser)</span>
+            </button>
+            <label class="btn-outline btn-file-label" title="Load weights trained with Python train_model.py">
+              <span>⚙️ Load Python Model (JSON)</span>
+              <input type="file" id="importJsonModelInput" accept=".json" class="hidden">
+            </label>
+          </div>
+        </div>
+
+        <!-- Model Evaluation & Interactive Confusion Matrix Display -->
+        <div id="modelResultsCard" class="model-results-card hidden">
+          <div class="results-header">
+            <div>
+              <span class="badge-mini">MODEL EVALUATION REPORT</span>
+              <h4 id="modelStatusTitle">മോഡൽ വിജയകരമായി ട്രെയിൻ ചെയ്തു</h4>
+              <p id="modelStatusSubtitle" class="model-subtitle">Multiclass Softmax Logistic Regression with z-score feature standardization.</p>
+            </div>
+            <div class="results-score-badge">
+              <span class="acc-label">TEST ACCURACY</span>
+              <span id="modelAccuracyVal" class="acc-val">90.0%</span>
+            </div>
+          </div>
+
+          <!-- 4x4 Confusion Matrix -->
+          <div class="confusion-matrix-container">
+            <div class="matrix-title">CONFUSION MATRIX (Predicted vs Actual)</div>
+            <div class="matrix-grid-wrapper">
+              <table class="confusion-table" id="confusionTable">
+                <thead>
+                  <tr>
+                    <th>Actual \ Pred</th>
+                    <th>🟢 Genuine</th>
+                    <th>🟡 Polite</th>
+                    <th>🔴 Danger</th>
+                    <th>💀 Survival</th>
+                  </tr>
+                </thead>
+                <tbody id="confusionTableBody">
+                  <!-- Populated dynamically via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Feature Importance / Weights Bar -->
+          <div class="feature-weights-container">
+            <div class="weights-title">MODEL COEFFICIENT HIGHLIGHTS (Key Discriminators)</div>
+            <div class="weights-grid" id="weightsGrid">
+              <!-- Populated dynamically via JS -->
+            </div>
+          </div>
+
+          <div id="smallDatasetWarning" class="dataset-warning-pill hidden">
+            ⚠️ ശ്രദ്ധിക്കുക: ഡാറ്റാസെറ്റിൽ 12-ൽ താഴെ സാമ്പിളുകൾ മാത്രമേ ഉള്ളൂ. കൂടുതൽ സാമ്പിളുകൾ ചേർക്കുമ്പോൾ കൃത്യത വർദ്ധിക്കും.
+          </div>
+        </div>
+
+        <!-- Accurate Hackathon Disclaimer -->
+        <div class="ml-disclaimer-box">
+          <div class="disclaimer-icon">💡</div>
+          <div class="disclaimer-text">
+            <strong>Technically Accurate Hackathon Formulation:</strong>
+            “We use a pretrained face-landmark model (MediaPipe) to extract 9 head movement features, then classify nodding behavior using a machine-learning model trained on our own labeled examples.”
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Hackathon Explainer / Architecture Section with Malayalam -->
+    <section class="explainer-section">
+      <div class="explainer-header">
+        <span class="badge-mini">സാങ്കേതിക വിവരണം</span>
+        <h2 class="explainer-title-mal">എന്താണ് ഈ സംഭവം?</h2>
+        <p class="explainer-desc-mal">
+          ഒരാൾ എന്തെങ്കിലും വിശദീകരിക്കുമ്പോൾ മനസ്സിലായില്ലെങ്കിലും തല കുലുക്കുന്ന മനുഷ്യരുടെ സ്വാഭാവിക സ്വഭാവത്തെ AI ഉപയോഗിച്ച് വിശകലനം ചെയ്യുന്ന ഒരു experimental hackathon project.
+        </p>
+      </div>
+
+      <div class="explainer-grid">
+        <div class="glass-card explainer-card">
+          <div class="explainer-num">01</div>
+          <h3>Landmark Triangulation</h3>
+          <p>
+            MediaPipe FaceMesh മുഖത്തെ 468 ബിന്ദുക്കൾ തത്സമയം നിരീക്ഷിക്കുന്നു. മൂക്കിന്റെ അഗ്രവും താടിയെല്ലും തമ്മിലുള്ള ലംബമായ ദൂരം അളന്നാണ് തല താഴോട്ട് പോയോ എന്ന് ഉറപ്പുവരുത്തുന്നത്.
+          </p>
+        </div>
+
+        <div class="glass-card explainer-card">
+          <div class="explainer-num">02</div>
+          <h3>EMA & Debouncing</h3>
+          <p>
+            തല വെറുതെ അനങ്ങുമ്പോൾ തലയാട്ടലായി തെറ്റിദ്ധരിക്കാതിരിക്കാൻ Exponential Moving Average (EMA) ഫിൽട്ടറും 280ms ഡിബൗൺസ് കൂൾഡൗണും പ്രവർത്തിക്കുന്നു.
+          </p>
+        </div>
+
+        <div class="glass-card explainer-card">
+          <div class="explainer-num">03</div>
+          <h3>The Inverse Nod Law</h3>
+          <p>
+            <strong>“തലയാട്ടലിന്റെ വേഗത കൂടുംതോറും തലച്ചോറിൽ വിവരങ്ങൾ കയറാനുള്ള സാധ്യത പൂജ്യത്തിലേക്ക് അടുക്കുന്നു.”</strong> കഴിഞ്ഞ 10 സെക്കൻഡിലെ തലയാട്ടൽ നിരക്കാണ് വിധി നിർണ്ണയിക്കുന്നത്.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Animated Toast & Alert Container -->
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <!-- Certificate Modal Dialog with Malayalam Kasavu Touch -->
+  <div id="certificateModal" class="modal-backdrop hidden">
+    <div class="modal-card">
+      <button id="closeModalBtn" class="modal-close-btn" aria-label="Close modal">&times;</button>
+
+      <div class="cert-frame" id="certFrame">
+        <div class="cert-watermark">അറിയാതെ തലയാട്ടിയത്</div>
+
+        <div class="cert-header">
+          <div class="cert-stamp">ഔദ്യോഗിക ഹാക്കത്തോൺ വിധി // OFFICIAL VERDICT</div>
+          <h2 class="cert-title">തലയാട്ടൽ യോഗ്യതാ പത്രം</h2>
+          <p class="cert-subtitle">CERTIFICATE OF CRANIAL AGREEMENT • TinkerHub Useless Projects</p>
+        </div>
+
+        <div class="cert-body">
+          <p class="cert-intro">പരിശോധിക്കപ്പെട്ട വ്യക്തി കേട്ടതൊന്നും മനസ്സിലാവാതെ താഴെ പറയുന്ന empirical കണക്കുകളിൽ ആത്മാർത്ഥമായി തലയാട്ടി എന്ന് സാക്ഷ്യപ്പെടുത്തുന്നു:</p>
+
+          <div class="cert-stats-grid">
+            <div class="cert-stat-box">
+              <div class="cert-stat-title">ആകെ തലയാട്ടിയത്</div>
+              <div class="cert-stat-value" id="certTotalNods">0</div>
+            </div>
+            <div class="cert-stat-box">
+              <div class="cert-stat-title">മനസ്സിലായോ സ്കോർ</div>
+              <div class="cert-stat-value" id="certScore">0%</div>
+            </div>
+            <div class="cert-stat-box">
+              <div class="cert-stat-title">തലയാട്ടൽ വേഗത</div>
+              <div class="cert-stat-value" id="certCadence">0 nods/min</div>
+            </div>
+            <div class="cert-stat-box">
+              <div class="cert-stat-title">തട്ടിപ്പിന്റെ തോത്</div>
+              <div class="cert-stat-value" id="certFakeQuotient">0%</div>
+            </div>
+          </div>
+
+          <div class="cert-verdict-box">
+            <div class="cert-verdict-tag">DIAGNOSTIC RANK</div>
+            <div class="cert-verdict-title" id="certRankTitle">Dormant Spectator</div>
+            <p class="cert-verdict-quote" id="certRankQuote">“ഒരു തലയാട്ടലും രേഖപ്പെടുത്തിയിട്ടില്ല. ഒന്നുകിൽ ധ്യാനത്തിലാണ്, അല്ലെങ്കിൽ ഭയം കൊണ്ട് അനങ്ങാൻ കഴിയുന്നില്ല.”</p>
+          </div>
+        </div>
+
+        <div class="cert-footer">
+          <div class="cert-signature-block">
+            <div class="cert-sig-line">Athe Athe Neural Core</div>
+            <div class="cert-sig-caption">ചീഫ് തലയാട്ടൽ ശാസ്ത്രജ്ഞൻ</div>
+          </div>
+          <div class="cert-seal">
+            <div class="seal-inner">★ 100% USELESS ★ VERIFIED</div>
+          </div>
+          <div class="cert-signature-block">
+            <div class="cert-sig-line">TinkerHub Hackathon</div>
+            <div class="cert-sig-caption">Official Evaluator</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button id="printCertBtn" class="btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 6 2 18 2 18 9"></polyline>
+            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+            <rect x="6" y="14" width="12" height="8"></rect>
+          </svg>
+          <span>സർട്ടിഫിക്കറ്റ് പ്രിന്റ് ചെയ്യുക</span>
+        </button>
+        <button id="dismissModalBtn" class="btn-secondary">അടയ്ക്കുക</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer with Kerala Hackathon Disclaimer -->
+  <footer class="app-footer">
+    <div class="footer-content">
+      <div class="footer-credits">
+        <strong>അറിയാതെ തലയാട്ടിയത് © 2026</strong>
+        <span class="footer-separator">•</span>
+        Built for absolutely no useful reason.
+        <span class="footer-separator">•</span>
+        Made with ❤️ at TinkerHub Useless Projects
+      </div>
+      <p class="footer-disclaimer">
+        ⚠️ <strong>Disclaimer:</strong> Experimental Hackathon Project. ഈ സിസ്റ്റം തലയുടെ ചലനത്തെ മാത്രമേ നിരീക്ഷിക്കുന്നുള്ളൂ; യഥാർത്ഥ മനുഷ്യ മനസ്സിനെയല്ല. മീറ്റിംഗുകളിൽ വെറുതെ തലയാട്ടി രക്ഷപ്പെടുന്നവരുമായി ഇതിന് എന്തെങ്കിലും സാമ്യം തോന്നിയാൽ അത് തികച്ചും സ്വാഭാവികം മാത്രം.
+      </p>
+    </div>
+  </footer>
+
+  <!-- Main Application Logic Script -->
+  <script src="script.js"></script>
+</body>
+
+</html>
